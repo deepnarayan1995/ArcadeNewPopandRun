@@ -29,10 +29,18 @@ public class GameManager : MonoBehaviour
     public GameObject sceneFade;
     public GameObject[] Levels;
 
+    bool isEscapeActive;
+    bool isPaused;
+    bool isgamestarted;
+    public GameObject pausePanel;
+
 
     void Awake()
     {
         //Application.targetFrameRate = 60;
+        isEscapeActive = false;
+        isgamestarted = false;
+        isPaused = false;
         isGameover = false;
         isCamMoving = false;
         camPos.x = Ball.transform.position.x;
@@ -65,10 +73,29 @@ public class GameManager : MonoBehaviour
                 isCamMoving = false;
             }
         }
+        if(isEscapeActive)
+        {
+            if (Input.GetKeyDown(KeyCode.Escape) && isPaused == false)
+            {
+                PauseGame();
+            }
+            else if (Input.GetKeyDown(KeyCode.Escape) && isPaused == true)
+            {
+                ResumeGame();
+            }
+        }
+        else if(!isEscapeActive && !isgamestarted)
+        {
+            if(Input.GetKeyDown(KeyCode.Escape))
+            {
+                StartCoroutine("LoadMenuscene");
+            }            
+        }
     }
 
     public void StartGame()
-    {        
+    {
+        isgamestarted = true;
         StartCoroutine("start_Game");
     }
     IEnumerator start_Game()
@@ -89,6 +116,14 @@ public class GameManager : MonoBehaviour
         Env.LevelWays[LoadLevel].SetActive(true);
         Destroy(round.transform.gameObject);
         Destroy(fakeBall.transform.gameObject);
+        isEscapeActive = true;
+    }
+
+    IEnumerator LoadMenuscene()
+    {
+        sceneFade.SetActive(true);
+        yield return new WaitForSeconds(0.75f);
+        SceneManager.LoadScene("Menuscene");
     }
 
     public IEnumerator RestartLevel()
@@ -108,8 +143,6 @@ public class GameManager : MonoBehaviour
         GetDestinations();
         isPlaymode = true;
     }
-
-
     public IEnumerator LoadnextLevel()
     {
         yield return new WaitForSeconds(0.75f);        
@@ -128,17 +161,28 @@ public class GameManager : MonoBehaviour
         Env.LevelWays[LoadLevel].SetActive(true);
         isPlaymode = true;
     }
-
     private void GetDestinations()
     {
         BallMov.initDest = 0;
         BallMov.totalDest = Env.levelDest[LoadLevel].Length;
         BallMov.target = Env.levelDest[LoadLevel][BallMov.initDest].transform.position;
     }
-
     public void RestartScene()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    public void PauseGame()
+    {
+        pausePanel.SetActive(true);
+        isPaused = true;
+        Time.timeScale = 0f;
+    }
+    public void ResumeGame()
+    {
+        pausePanel.SetActive(false);
+        isPaused = false;
+        Time.timeScale = 1f;
     }
 
 }
