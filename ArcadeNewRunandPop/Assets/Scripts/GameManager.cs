@@ -4,6 +4,8 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
+    public SaveManager SM;
+    public Player PL;
     Camera cam;
     public GameObject Ball;
     Vector3 camPos;
@@ -24,8 +26,10 @@ public class GameManager : MonoBehaviour
 
     [HideInInspector]
     public bool isGameover;
+
     [HideInInspector]
-    public int LoadLevel;
+    public int LoadLevel;//this variable will be saved///
+
     public GameObject sceneFade;
     public GameObject[] Levels;
 
@@ -33,25 +37,45 @@ public class GameManager : MonoBehaviour
     bool isPaused;
     bool isgamestarted;
     public GameObject pausePanel;
+    public GameObject SuretoExitPanel;
+    bool isDirectLevelOpen;
+    public Animator EntryFade;
 
 
     void Awake()
     {
+        LoadThisGame();
         //Application.targetFrameRate = 60;
-        isEscapeActive = false;
-        isgamestarted = false;
-        isPaused = false;
-        isGameover = false;
-        isCamMoving = false;
-        camPos.x = Ball.transform.position.x;
-        camPos.y = Ball.transform.position.y;
-        camPos.z = -10f;
-        cam = Camera.main;
-        cam.orthographicSize = 1.5f;
-        cam.transform.position = camPos;
-        isPlaymode = false;
-        LoadLevel = 0;
-        Levels[LoadLevel].SetActive(true);
+        isDirectLevelOpen = PL.isDirectLevelOpeninginGameScene;
+        
+    }
+
+    void Start()
+    {
+        if(isDirectLevelOpen)
+        {
+            LoadLevel = PL.temporaryLoadLevel;
+            StartCoroutine("DirectStartLevel");
+            Debug.Log(LoadLevel);
+        }
+        else
+        {
+            Debug.Log(LoadLevel);
+            LoadLevel = PL.LoadLevel;
+            isEscapeActive = false;
+            isgamestarted = false;
+            isPaused = false;
+            isGameover = false;
+            isCamMoving = false;
+            camPos.x = Ball.transform.position.x;
+            camPos.y = Ball.transform.position.y;
+            camPos.z = -10f;
+            cam = Camera.main;
+            cam.orthographicSize = 1.5f;
+            cam.transform.position = camPos;
+            isPlaymode = false;
+            Levels[LoadLevel].SetActive(true);
+        }
     }
 
     void Update()
@@ -93,6 +117,26 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    #region GameSaving code
+
+    public void SaveThisGame()
+    {
+        SM.SaveData(PL);
+    }
+    public void LoadThisGame()
+    {
+        SM.Load();
+        if(PL.isPathexists)
+        {
+            PL.LoadLevel = PL.mydata.gdLoadLevel;
+            PL.totalLevelLocked = PL.mydata.gdTotalLevelLocked;
+            PL.isDirectLevelOpeninginGameScene = PL.mydata.gdisDirectLevelOpening;
+            PL.temporaryLoadLevel = PL.mydata.gdtempLoadLev;
+        }
+    }
+
+    #endregion
+
     public void StartGame()
     {
         isgamestarted = true;
@@ -116,6 +160,37 @@ public class GameManager : MonoBehaviour
         Env.LevelWays[LoadLevel].SetActive(true);
         Destroy(round.transform.gameObject);
         Destroy(fakeBall.transform.gameObject);
+        isEscapeActive = true;        
+    }
+
+    IEnumerator DirectStartLevel()
+    {
+        menuPanel.SetActive(false);
+        Destroy(round.transform.gameObject);
+        Destroy(fakeBall.transform.gameObject);
+        isEscapeActive = false;
+        isgamestarted = false;
+        isPaused = false;
+        isGameover = false;
+        isCamMoving = false;
+        //camPos.x = Ball.transform.position.x;
+        //camPos.y = Ball.transform.position.y;
+        //camPos.z = -10f;
+        cam = Camera.main;
+        cam.orthographicSize = 5f;
+        cam.transform.position = new Vector3(0f, 0f, -10f);
+        isPlaymode = false;
+        Levels[LoadLevel].SetActive(true);
+
+        yield return new WaitForSeconds(1f);
+
+        isgamestarted = true;
+        isPlaymode = true;
+        gamePanel.SetActive(true);
+        Env.LevelWays[LoadLevel].SetActive(true);
+        PL.isDirectLevelOpeninginGameScene = false;
+        PL.temporaryLoadLevel = 0;
+        SaveThisGame();
         isEscapeActive = true;
     }
 
@@ -160,6 +235,7 @@ public class GameManager : MonoBehaviour
         GetDestinations();
         Env.LevelWays[LoadLevel].SetActive(true);
         isPlaymode = true;
+        LoadThisGame();
     }
     private void GetDestinations()
     {
@@ -183,6 +259,22 @@ public class GameManager : MonoBehaviour
         pausePanel.SetActive(false);
         isPaused = false;
         Time.timeScale = 1f;
+    }
+
+    public void OpenConfirmtoExitaLevel()
+    {
+        isEscapeActive = false;
+        SuretoExitPanel.SetActive(true);
+    }
+    public void CloseConfirmtoExitaLevel()
+    {
+        isEscapeActive = true;
+        SuretoExitPanel.SetActive(false);
+    }
+    public void ExitToMenu()
+    {
+        Time.timeScale = 1f;
+        StartCoroutine("LoadMenuscene");
     }
 
 }
