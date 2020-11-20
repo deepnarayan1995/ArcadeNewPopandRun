@@ -54,9 +54,9 @@ public class GameManager : MonoBehaviour
     {
         if(isDirectLevelOpen)
         {
+            isgamestarted = true;
             LoadLevel = PL.temporaryLoadLevel;
             StartCoroutine("DirectStartLevel");
-            Debug.Log(LoadLevel);
         }
         else
         {
@@ -169,13 +169,9 @@ public class GameManager : MonoBehaviour
         Destroy(round.transform.gameObject);
         Destroy(fakeBall.transform.gameObject);
         isEscapeActive = false;
-        isgamestarted = false;
         isPaused = false;
         isGameover = false;
         isCamMoving = false;
-        //camPos.x = Ball.transform.position.x;
-        //camPos.y = Ball.transform.position.y;
-        //camPos.z = -10f;
         cam = Camera.main;
         cam.orthographicSize = 5f;
         cam.transform.position = new Vector3(0f, 0f, -10f);
@@ -184,7 +180,6 @@ public class GameManager : MonoBehaviour
 
         yield return new WaitForSeconds(1f);
 
-        isgamestarted = true;
         isPlaymode = true;
         gamePanel.SetActive(true);
         Env.LevelWays[LoadLevel].SetActive(true);

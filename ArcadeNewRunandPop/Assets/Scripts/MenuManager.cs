@@ -34,7 +34,6 @@ public class MenuManager : MonoBehaviour
     void Start()
     {
         totalLocked = PL.totalLevelLocked;
-        //totalLocked = 39;
         for (int i = 0; i < 40; i++)
         {
             isLevelActive[i] = true;
@@ -49,7 +48,6 @@ public class MenuManager : MonoBehaviour
         {
             isLevelActive[40 - i] = false;
             LockImages[39 - i].SetActive(true);
-            //LevelNumerics[39 - i].SetActive(false);
         }
 
         ActivImages[39 - totalLocked].SetActive(true);
@@ -94,6 +92,7 @@ public class MenuManager : MonoBehaviour
     {
         if(isLevelActive[levelNumber - 1])
         {
+            isEscapeActive = false;
             PL.temporaryLoadLevel = levelNumber - 1;
             PL.isDirectLevelOpeninginGameScene = true;
             SaveThisGame();
