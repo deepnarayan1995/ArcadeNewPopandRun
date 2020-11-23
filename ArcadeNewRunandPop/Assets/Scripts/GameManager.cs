@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using TMPro;
 
 public class GameManager : MonoBehaviour
 {
@@ -40,6 +41,8 @@ public class GameManager : MonoBehaviour
     public GameObject SuretoExitPanel;
     bool isDirectLevelOpen;
     public Animator EntryFade;
+    public GameObject Lensflare;
+    public TextMeshProUGUI LevelNo;
 
 
     void Awake()
@@ -145,22 +148,23 @@ public class GameManager : MonoBehaviour
     IEnumerator start_Game()
     {
         fakeBall.GetComponent<Animator>().SetTrigger("Jarvis");
-        menuDisappear.SetTrigger("startGame");
-        //yield return new WaitForSeconds(0.5f);
-        
+        menuDisappear.SetTrigger("startGame");        
         yield return new WaitForSeconds(1.2f);
         round.Play();
         yield return new WaitForSeconds(1.5f);
-        menuPanel.SetActive(false);        
-        //yield return new WaitForSeconds(1f);
+        menuPanel.SetActive(false);
         isCamMoving = true;
+        LevelNo.text = "LEVEL " + (LoadLevel + 1);
         yield return new WaitForSeconds(1.5f);
         isPlaymode = true;
         gamePanel.SetActive(true);
         Env.LevelWays[LoadLevel].SetActive(true);
         Destroy(round.transform.gameObject);
         Destroy(fakeBall.transform.gameObject);
-        isEscapeActive = true;        
+        isEscapeActive = true;
+        Lensflare.SetActive(true);
+        yield return new WaitForSeconds(2f);
+        Lensflare.SetActive(false);
     }
 
     IEnumerator DirectStartLevel()
@@ -177,7 +181,7 @@ public class GameManager : MonoBehaviour
         cam.transform.position = new Vector3(0f, 0f, -10f);
         isPlaymode = false;
         Levels[LoadLevel].SetActive(true);
-
+        LevelNo.text = "LEVEL " + (LoadLevel + 1);
         yield return new WaitForSeconds(1f);
 
         isPlaymode = true;
@@ -187,6 +191,9 @@ public class GameManager : MonoBehaviour
         PL.temporaryLoadLevel = 0;
         SaveThisGame();
         isEscapeActive = true;
+        Lensflare.SetActive(true);
+        yield return new WaitForSeconds(2f);
+        Lensflare.SetActive(false);
     }
 
     IEnumerator LoadMenuscene()
@@ -208,10 +215,14 @@ public class GameManager : MonoBehaviour
         Ball.transform.gameObject.SetActive(true);
         Ball.transform.position = new Vector3(0f, -2f, 0f);
         cam.transform.position = new Vector3(0f, 0f, -10f);
+        LevelNo.text = "LEVEL " + (LoadLevel + 1);
         yield return new WaitForSeconds(0.75f);
         sceneFade.SetActive(false);
         GetDestinations();
         isPlaymode = true;
+        Lensflare.SetActive(true);
+        yield return new WaitForSeconds(2f);
+        Lensflare.SetActive(false);
     }
     public IEnumerator LoadnextLevel()
     {
@@ -223,6 +234,7 @@ public class GameManager : MonoBehaviour
         Ball.transform.position = new Vector3(0f, -2f, 0f);
         cam.transform.position = new Vector3(0f, 0f, -10f);
         LoadLevel++;
+        LevelNo.text = "LEVEL " + (LoadLevel + 1);
         Levels[LoadLevel - 1].SetActive(false);
         Levels[LoadLevel].SetActive(true);
         yield return new WaitForSeconds(0.75f);
@@ -231,6 +243,9 @@ public class GameManager : MonoBehaviour
         Env.LevelWays[LoadLevel].SetActive(true);
         isPlaymode = true;
         LoadThisGame();
+        Lensflare.SetActive(true);
+        yield return new WaitForSeconds(2f);
+        Lensflare.SetActive(false);
     }
     private void GetDestinations()
     {
